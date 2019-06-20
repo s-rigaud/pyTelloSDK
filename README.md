@@ -19,6 +19,7 @@ All Linux only features will be tagged with a 🐧.
 3. [Flight modes](#flightmodes)
 4. [3D modeling techniques](#modeling)
 5. [More on this project](#moreonproject)
+5. [Application diagrams](#diagrams)
 
 ------------------------------------------------------------------------------------------------\-
 
@@ -238,3 +239,12 @@ Once the 3D Model is obtained, post-processing with Intant Meshes may remain a g
 
 * Terminal is really dirty (C++ errors)
 * Non closing programm (UI thread issue - Tkinter blocking call)
+
+
+## [6. Diagrams](#content-table) <a name="diagrams"></a>
+
+#### Class diagram
+![](https://raw.githubusercontent.com/s-rigaud/pyTelloSDK/master/pictures/classes_Pyreverse.png)
+
+#### Implementation diagram
+![](https://raw.githubusercontent.com/s-rigaud/pyTelloSDK/master/pictures/packages_Pyreverse.png)

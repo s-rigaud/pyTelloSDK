@@ -2,11 +2,10 @@
  a live stream video of the front camera of the drone"""
 
 import os
-import sys
 import tkinter as tk
 from tkinter import PhotoImage, TclError
 from time import sleep
-from threading import Thread, get_ident
+from threading import Thread
 from PIL import ImageTk
 
 from toolbox import command_from_key
@@ -30,11 +29,12 @@ class VideoUI:
         self.panel = None
 
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        picture_path = os.path.sep.join((self.dir_path, 'pictures'))
         if not self.drone.is_connected:
-            path = os.path.sep.join((self.dir_path, 'connection_failed.png'))
+            path = os.path.sep.join((picture_path, 'connection_failed.png'))
             self.frame = PhotoImage(file=path)
         else:
-            path = os.path.sep.join((self.dir_path, 'loading.png'))
+            path = os.path.sep.join((picture_path, 'loading.png'))
             self.frame = PhotoImage(file=path)
             # Timeout to kill concurent threads
             self.drone.command_socket.settimeout(11)
@@ -49,10 +49,12 @@ class VideoUI:
 
     @property
     def threads_alive(self):
+        """Return the number of threads still alived"""
         existing_threads = [thread for thread in (self.video_thread, self.ka_thread) if thread is not None]
         return len([thread for thread in existing_threads if thread.isAlive()])
 
     def show_bindings(self):
+        """Display keybindings on the UI"""
         tk.Label(self.root, text='⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀forward                 clockwise rotation : 4  ↻').pack()
         tk.Label(self.root, text='⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⬆️             counter clockwise rotation : 6  ↺').pack()
         tk.Label(self.root, text='left ⬅️     ➡️ right').pack()
@@ -131,7 +133,7 @@ class VideoUI:
         # Test if panel is None after destruct
 
     def open(self):
-        """"""
+        """Main method used to open the UI"""
         if self.drone.is_connected:
             self.window_is_opened = True
             # Threads
@@ -165,4 +167,3 @@ if __name__ == "__main__":
     # Problem
     # Windows needs to be killed after the drone disconnect else the software is trying to update the closed windows
     # unding with a blocking call function with no warning
-

@@ -5,8 +5,6 @@ Usefull tool box to store some functions call by TelloEDu and Swarm functions
 
 __all__ = ['reverse_actions', 'back_to_base', 'command_from_key']
 
-import os
-
 def reverse_actions(actions: list):
     """
     Reverse the action list to an other action list with opposite cammands
@@ -81,7 +79,7 @@ def back_to_base(func):
     return wrapper
 
 def command_from_key(key):
-    """"""
+    """Return the command correspondign to the key typed (like a giant dictionnary)"""
     dict_int_commands = {111: 'forward 30', 113: 'left 30', 114: 'right 30', 116: 'back 30'}
     dict_str_commands = {'a': 'sn?', ' ': 'takeoff', '+' : 'land', '8': 'up 30', '2': 'down 30', '6': 'cw 30',
           '4': 'ccw 30', 'b': 'battery?', 'f': 'flip f', 'H': 'forward 30', 'A': 'forward 30', 'M': 'right 30',

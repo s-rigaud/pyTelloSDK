@@ -9,7 +9,7 @@ import socket
 from time import sleep
 from PIL import Image
 
-from abstract_drone import *
+from abstract_drone import AbstractDrone, AV_AVAILABLE, LIB_AVAILABLE
 
 class Swarm(AbstractDrone):
     """Class created to interact with the drone"""
@@ -51,13 +51,10 @@ class Swarm(AbstractDrone):
         return len(self.tello_ip_addresses)
 
     def init_commands(self):
-        """"""
+        """Init drones' SDK """
         for index in range(len(self)):
             #Init connexion (SDK Mode)
             self.send('command', index)
-            #Enable front recognition for Mission Pads
-            if self.front_mp:
-                self.send('mon', index)
             #Enable video streaming
             if self.video_stream:
                 self.send('streamon', index)

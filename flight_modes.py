@@ -107,11 +107,7 @@ class ActFromFileMode(AbstractFlightMode):
     @back_to_base
     def start(self, **options):
         """Read file and execute actions"""
-        filename = options.get('filename', None)
-        if filename is None:
-            print('You should specified a filename in the arguments')
-            return
-        print(filename)
+        filename = options.get('filename')
         project_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = os.path.sep.join((project_path, 'missions_dir'))
         path = os.path.sep.join((dir_path, filename))

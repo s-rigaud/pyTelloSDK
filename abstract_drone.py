@@ -10,16 +10,17 @@ from threading import Thread
 from abc import ABC, abstractmethod
 from subprocess import Popen, PIPE
 import numpy as np
-from math import ceil
 
 from video_stream import VideoStream
 from flight_modes import AbstractFlightMode, ActFromFileMode, ActFromActionListMode, ReactiveMode, OpenPipeMode, PictureMission
 
+# All av related thing is just test compatibility for Windows
 
 class NoVideoDecoderError(Exception):
-    """"""
-    def __init__(self):
-        self.msg = 'You don\'t have access to either libh264decoder library compiled or py-av module'
+    """Error when no decoder was found for h264 format"""
+    def __init__(self, msg):
+        super().__init__()
+        self.msg = msg
 
     def __str__(self):
         return f'{self.__class__.__name__} :  {self.msg}'
@@ -30,7 +31,7 @@ class NoVideoDecoderError(Exception):
 # By default use compiled library else py-av
 try:
     import libh264decoder
-    print('You have compiled the h264 librairy')
+    print('You have compiled the h264 library')
 except (ModuleNotFoundError, ImportError):
     LIB_AVAILABLE = False
 else:
@@ -40,13 +41,13 @@ else:
 
 try:
     import av
-    print('You have access to py-av librairy')
+    print('You have access to py-av library')
 except (ModuleNotFoundError, ImportError):
     AV_AVAILABLE = False
 else:
     AV_AVAILABLE = True
 
-NO_VIDEO_DECODER =  not LIB_AVAILABLE and not AV_AVAILABLE
+NO_VIDEO_DECODER = not LIB_AVAILABLE and not AV_AVAILABLE
 
 class AbstractDrone(ABC):
     """
@@ -69,13 +70,12 @@ class AbstractDrone(ABC):
         self.local_address_video = ('', 11111)
 
         self.video_stream = kwargs.get('video_stream', False)
-        self.front_mp = kwargs.get('front_mp', False)
         self.state_listener = kwargs.get('state_listener', False)
         self.back_to_base = kwargs.get('back_to_base', False)
 
         self.flight_mode: AbstractFlightMode = None
 
-        self.last_frame:bytes = None
+        self.last_frame: bytes = None
         self.video_frames = VideoStream()
         self.av_target_opened = False
 
@@ -95,12 +95,6 @@ class AbstractDrone(ABC):
         """Layer for protected member"""
         return self._end_connection
 
-    @property
-    def threads_alive(self):
-        """Determine if some parallel threads are running"""
-        existing_threads = [thread for thread in (self.video_thread, self.ack_thread, self.state_thread) if thread is not None]
-        return len([thread for thread in existing_threads if thread.isAlive()])
-
     @end_connection.setter
     def end_connection(self, value):
         """If the flag is raised, all sockets are being closed"""
@@ -112,6 +106,12 @@ class AbstractDrone(ABC):
                 self.state_socket.close()
             if self.videostream_socket is not None:
                 self.videostream_socket.close()
+
+    @property
+    def threads_alive(self):
+        """Determine if some parallel threads are running"""
+        existing_threads = [thread for thread in (self.video_thread, self.ack_thread, self.state_thread) if thread is not None]
+        return len([thread for thread in existing_threads if thread.isAlive()])
 
     def init_drone_sockets(self):
         """Forced the drone to use SDK mode and enable its modules"""
@@ -261,27 +261,35 @@ class AbstractDrone(ABC):
             elif flight_mode == 'reactive':
                 self.flight_mode = ReactiveMode(self)
             elif flight_mode == 'act from file':
-                self.flight_mode = ActFromFileMode(self, **options)
+                if options.get('filename') is not None:
+                    self.flight_mode = ActFromFileMode(self, **options)
+                else:
+                    print('If you want to act from a file you should specify the path in the filename parameter')
+                    self.end_connection = True
             elif flight_mode == 'act from list':
                 self.flight_mode = ActFromActionListMode(self, **options)
             elif flight_mode == 'picture mission':
                 if NO_VIDEO_DECODER:
-                    raise NoVideoDecoderError()
+                    raise NoVideoDecoderError("Be sure you have access to either av library or libh264decoder")
                 self.flight_mode = PictureMission(self, **options)
             else:
                 print('You enter an unrecognize flying mode')
-                self._end_connection = True
+                self.end_connection = True
 
     def start_mission(self):
         """Launch function for the strategy (flight mode)"""
-        if self.is_connected and self.flight_mode is not None:
-            self.flight_mode.start()
+        if self.is_connected:
+            if self.flight_mode is not None:
+                self.flight_mode.start()
+            else:
+                print('flight mode was not initialised')
 
     def take_picture(self):
         """Add a picture to the attribute"""
         return self.last_frame
 
-    def save_pictures(self, picture_list: list):
+    @classmethod
+    def save_pictures(cls, picture_list: list):
         """Saved all given pictures to the dedicated folder"""
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_picture = os.path.sep.join((dir_path, 'pictures'))
@@ -309,7 +317,7 @@ class AbstractDrone(ABC):
                     action_to_do = action_to_do[len(str(index))+1:]
                 else:
                     print(f'index : {index} is too big.')
-            except Exception:
+            except ValueError:
                 # If no index is specified
                 index = 0
 
@@ -337,11 +345,11 @@ class AbstractDrone(ABC):
                 frames = container.decode(video=0)
                 print(len(frames))
             for framedata in frames:
-                (frame, w, h, ls) = framedata
+                (frame, width, height, row_size) = framedata
                 if frame is not None:
                     frame = np.fromstring(frame, dtype=np.ubyte, count=len(frame), sep='')
-                    frame = (frame.reshape((h, int(ls / 3), 3)))
-                    frame = frame[:, :w, :]
+                    frame = (frame.reshape((height, int(row_size / 3), 3)))
+                    frame = frame[:, :width, :]
                     res_frame_list.append(frame)
         return res_frame_list
 

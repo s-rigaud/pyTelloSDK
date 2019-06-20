@@ -9,7 +9,7 @@ import socket
 from time import sleep
 from PIL import Image
 
-from abstract_drone import *
+from abstract_drone import AbstractDrone, AV_AVAILABLE, LIB_AVAILABLE
 
 class TelloEDU(AbstractDrone):
     """Class created to interact with the drone"""
@@ -41,11 +41,8 @@ class TelloEDU(AbstractDrone):
         return int(self.is_connected)
 
     def init_commands(self):
-        """"""
+        """Init drone SDK"""
         self.send('command')
-        #Enable front recognition for Mission Pads
-        if self.front_mp:
-            self.send('mon')
         #Enable video streaming
         if self.video_stream:
             self.send('streamon')
