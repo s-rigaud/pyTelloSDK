@@ -86,6 +86,12 @@ class AbstractDrone(ABC):
             print('Mission completed successfully!')
 
     @property
+    def status(self):
+        """Simple check of the state of the drone"""
+        return f"({self.__class__.__name__}) : connected={self.is_connected}"
+
+
+    @property
     def is_connected(self):
         """simple name convenience"""
         return not self._end_connection
@@ -258,22 +264,29 @@ class AbstractDrone(ABC):
             flight_mode = flight_mode.lower().strip()
             if flight_mode == 'open pipe':
                 self.flight_mode = OpenPipeMode(self)
+
             elif flight_mode == 'reactive':
                 self.flight_mode = ReactiveMode(self)
+
             elif flight_mode == 'act from file':
-                if options.get('filename') is not None:
-                    self.flight_mode = ActFromFileMode(self, **options)
-                else:
-                    print('If you want to act from a file you should specify the path in the filename parameter')
+                if options.get('filename') is None:
                     self.end_connection = True
+                    raise TypeError("You forgot filename argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
+                else:
+                    self.flight_mode = ActFromFileMode(self, **options)
+
             elif flight_mode == 'act from list':
+                if options.get('actions') is None:
+                    self.end_connection = True
+                    raise TypeError("You forgot actions argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
                 self.flight_mode = ActFromActionListMode(self, **options)
+
             elif flight_mode == 'picture mission':
                 if NO_VIDEO_DECODER:
                     raise NoVideoDecoderError("Be sure you have access to either av library or libh264decoder")
                 self.flight_mode = PictureMission(self, **options)
             else:
-                print('You enter an unrecognize flying mode')
+                print('You enter an unrecognize flight mode')
                 self.end_connection = True
 
     def start_mission(self):

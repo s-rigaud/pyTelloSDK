@@ -11,8 +11,6 @@ def reverse_actions(actions: list):
     Mission Pad ID commands are not supported yet
     """
 
-    ###Problem with speed command
-
     reversed_list = []
     #Ignorable statements
     ign_statements = ['command', 'streamon', 'streamoff', 'mon', 'moff', 'sn?', 'battery?', 'time?', 'wifi?', 'sdk?']
@@ -63,7 +61,6 @@ def reverse_actions(actions: list):
         reversed_list.append(action)
     return reversed_list
 
-
 def back_to_base(func):
     """ Decorator for all drone manipulation modes """
     def wrapper(self, *args, **kwargs):
@@ -85,6 +82,8 @@ def command_from_key(key):
           '4': 'ccw 30', 'b': 'battery?', 'f': 'flip f', 'H': 'forward 30', 'A': 'forward 30', 'M': 'right 30',
           'C': 'right 30', 'P': 'back 30', 'B': 'back 30', 'K': 'left 30', 'D': 'left 30'}
 
-    if str(type(key)) == 'int':
-        return dict_int_commands.get(key, None)
-    return dict_str_commands.get(key, None)
+    res_action = dict_int_commands.get(key)
+    if res_action is None:
+        return dict_str_commands.get(key)
+    return res_action
+

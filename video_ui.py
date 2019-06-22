@@ -20,7 +20,7 @@ class VideoUI:
         self.video_thread = self.ka_thread = None
 
         # UI
-        self.window_is_opened = False
+        self.window_is_open = False
         self.root = tk.Tk()
         self.root.wm_title("VideoUI")
         self.root.bind("<Key>", self.keys)
@@ -71,7 +71,7 @@ class VideoUI:
     def quit(self, event=None):
         """Close the window"""
         print('quit')
-        self.window_is_opened = False
+        self.window_is_open = False
         self.drone.end_connection = True
         # Try to kill drone before
         # sleep(2)
@@ -91,17 +91,17 @@ class VideoUI:
             self.drone.save_pictures(self.pictures) # Rewriting each time
         elif command_from_key(key) is not None:
             command = command_from_key(key)
-            self.drone.execute_actions([f'0-{command}',])
+            self.drone.execute_actions([f'0-{command}'])
         elif command_from_key(keycode) is not None:
             command = command_from_key(keycode)
-            self.drone.execute_actions([f'0-{command}',])
+            self.drone.execute_actions([f'0-{command}'])
         else:
             print(f'{key} is not bind to an action')
 
     def _keep_alive(self):
         """Simple thread to be sure the drone will not try to land after a short time without command received"""
-        while self.drone.is_connected and self.window_is_opened:
-            self.drone.execute_actions(['0-command',])
+        while self.drone.is_connected and self.window_is_open:
+            self.drone.execute_actions(['0-command'])
             sleep(10)
         print('keep alive done')
         self.drone.end_connection = True
@@ -112,7 +112,7 @@ class VideoUI:
 
     def _video_stream(self):
         """Image recepting thread"""
-        while self.drone.is_connected and self.window_is_opened:
+        while self.drone.is_connected and self.window_is_open:
             self.tkframe = self.frame
             if self.drone.take_picture() is not None:
                 self.frame = self.drone.take_picture()
@@ -135,7 +135,7 @@ class VideoUI:
     def open(self):
         """Main method used to open the UI"""
         if self.drone.is_connected:
-            self.window_is_opened = True
+            self.window_is_open = True
             # Threads
             self.ka_thread = Thread(target=self._keep_alive)
             self.ka_thread.start()

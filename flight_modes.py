@@ -116,7 +116,7 @@ class ActFromFileMode(AbstractFlightMode):
                 content = file.read()
                 actions = content.split('\n')
                 self.swarm.execute_actions(actions)
-        except Exception as exc:
+        except FileNotFoundError:
             print(f'There is no file at {path}')
 
 class ActFromActionListMode(AbstractFlightMode):
@@ -127,10 +127,7 @@ class ActFromActionListMode(AbstractFlightMode):
 
     @back_to_base
     def start(self, **options):
-        actions = options.get('actions', None)
-        if actions is None:
-            print('Have found any actions')
-            return
+        actions = options.get('actions')
         self.swarm.execute_actions(actions)
 
 class PictureMission(AbstractFlightMode):
@@ -162,8 +159,8 @@ class PictureMission(AbstractFlightMode):
                        ↓
                        y
         """
-        object_distance = options.get('object_distance', None)
-        object_dim = options.get('object_dim', None)
+        object_distance = options.get('object_distance')
+        object_dim = options.get('object_dim')
         if object_distance is None or object_dim is None:
             print('Please give object distance and dimensions')
             return

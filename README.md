@@ -37,7 +37,7 @@ If you want to download or use this project, I consider that you already have Py
 #### Install dependencies
 * Next step will be to download python modules used for this project, just tap in a console inside your local repository :
 
-    _pip install -r requirements.txt_ or _pip3 install -r requirements.txt_
+    _`pip install -r requirements.txt`_ or _`pip3 install -r requirements.txt`_
 
 * Be sure you have access to arp command on your computer, else you will not be able to detect automatically all the drones
 (If typing arp in your console end with an issue, type  .... )
@@ -107,7 +107,7 @@ my_tello.start_mission()
 
 Code example :
 ```python
-from swarm import Swarm
+from pyTelloSDK import Swarm
 
 my_swarm = Swarm('192.168.10.1', back_to_base='True')
 my_swarm.init_flight_mode('reactive')
@@ -203,7 +203,7 @@ vui.open()
 
 One of the goal of the project is to create meshes using all the pictures taken by the drone. (360° view if possible)
 
-I mostly used https://www.youtube.com/watch?v=R0PDCp0QF1o and official Meshroom website for documentation.
+I mostly used https://www.youtube.com/watch?v=R0PDCp0QF1o and [official Meshroom](https://alicevision.github.io/#meshroom) website for documentation.
 The video author said the lens quality really mattered and identifiable markers in the background (don't isolate the object).
 
 One of the good ways to process is to obtain high-quality pictures of many angles of the object.
