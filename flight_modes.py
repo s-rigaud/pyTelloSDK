@@ -76,7 +76,7 @@ class OpenPipeMode(AbstractFlightMode):
     def start(self, **options):
         """Allow user to send command specifing drone command and drone id"""
         user_command = ''
-        print('You are using open pipe modee, enter exit to leave')
+        print('\nYou are using open pipe mode, enter "exit" to leave')
         try :
             #While last command wasn't land / flag isn't raised / at least one drone is connected
             while self.swarm.is_connected:

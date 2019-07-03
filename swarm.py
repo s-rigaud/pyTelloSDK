@@ -81,7 +81,7 @@ class Swarm(AbstractDrone):
             print(f'Drone {index} - Sending message: {message}')
             self.all_instructions.append(str(index) + '-' + message)
         finally:
-            self._end_connection = self.test_drone_connection()
+            self.end_connection = self.test_drone_connection()
 
     def receive_ack(self):
         """Use UDP socket to receive ack from each command we sended"""
@@ -93,7 +93,7 @@ class Swarm(AbstractDrone):
                 self._end_connection = True
                 self.test_drone_connection()
                 print('Drone is not reachable anymore')
-        print('ack thread done')
+        # print('ack thread done')
 
     def receive_state(self, parameters: list):
         """Use UDP socket to receive all infos from the state channel"""
@@ -148,6 +148,7 @@ if __name__ == '__main__':
     my_swarm = Swarm(video_stream=True, state_listener=False, back_to_base=False)
     # my_swarm.init_flight_mode('act from file', filename='mission_file_idle.txt')
     # my_swarm.init_flight_mode('picture mission', object_distance=(0, 100), object_dim=(40, 40, 20))
-    my_swarm.init_flight_mode('open pipe')
-    # my_swarm.init_flight_mode('reactive')
+    # my_swarm.init_flight_mode('open pipe')
+    # my_swarm.init_flight_mode('act from list', actions=["0-takeoff", "1-takeoff", "0-ccw 50", "0-ccw 50", "0-land", "1-land"])
+    my_swarm.init_flight_mode('reactive')
     my_swarm.start_mission()

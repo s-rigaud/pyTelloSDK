@@ -20,12 +20,12 @@ class TelloEDU(AbstractDrone):
         #If address isn't given
         if tello_address is None:
             connected_drones = self.get_all_drones()
-            print(connected_drones)
+            # print(connected_drones)
             if connected_drones == []:
                 sys.tracebacklimit = 0
                 raise InterruptedError('You are not connected to any drone')
             tello_address = connected_drones[0]
-            print('The connected Tello is the Tello with IP : ' + tello_address)
+            # print('The connected Tello is the Tello with IP : ' + tello_address)
 
         self.tello_address = (tello_address, 8889)
         self._end_connection = self.test_drone_connection()
@@ -35,7 +35,7 @@ class TelloEDU(AbstractDrone):
             self.init_commands()
 
     def __repr__(self):
-        return 'I am a Tello EDU drone, my IP@ is {}'.format(self.tello_address[0])
+        return f'\nI am a Tello EDU drone, my IP@ is {self.tello_address[0]}\n'
 
     def __len__(self):
         return int(self.is_connected)
@@ -68,7 +68,7 @@ class TelloEDU(AbstractDrone):
             print(f'Drone {index} - Sending message: {message}')
             self.all_instructions.append(str(index) + '-' + message)
         finally:
-            self._end_connection = self.test_drone_connection()
+            self.end_connection = self.test_drone_connection()
 
     def receive_ack(self):
         """Use UDP socket to receive ack from each command we sended"""
@@ -79,7 +79,7 @@ class TelloEDU(AbstractDrone):
             except (socket.timeout, ConnectionResetError, OSError):
                 self._end_connection = True
                 print('Drone is not reachable anymore')
-        print('ack thread done')
+        # print('ack thread done')
 
     def receive_state(self, parameters):
         """Use UDP socket to receive all infos from the state channel"""
@@ -130,7 +130,8 @@ class TelloEDU(AbstractDrone):
         print('frame thread done')
 
 if __name__ == '__main__':
-    my_tello = TelloEDU('192.168.10.1', video_stream=True, state_listener=False, back_to_base=False)
+    my_tello = TelloEDU(video_stream=True, state_listener=False, back_to_base=False)
+
     # my_tello.init_flight_mode('act from file', filename='mission_file_idle.txt')
     # my_tello.init_flight_mode('picture mission', object_distance=(0, 100), object_dim=(40, 40, 20))
     my_tello.init_flight_mode('open pipe')

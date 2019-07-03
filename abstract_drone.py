@@ -81,7 +81,7 @@ class AbstractDrone(ABC):
 
     def __del__(self):
         """Try to close all the sockets"""
-        print('Drone deletion')
+        # print('Drone deletion')
         if self.all_instructions:
             print('Mission completed successfully!')
 
@@ -183,14 +183,13 @@ class AbstractDrone(ABC):
         Return the IP of drones connected to the routers connected to the computer
         Pinging refresh the ARP table for each connection tested
         """
-        print("You didn't give any IP adress")
+        print("You didn't give any IP address")
         ip_adress_format = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
         all_interfaces = set()
 
         if platform.system() == 'Windows':
             mac_adress_format = re.compile(r'((\d|([a-f]|[A-F])){2}-){5}(\d|([a-f]|[A-F])){2}')
             tello_builder_sign = '60-60-1f'
-            _timeout = 10
             #Get all interfaces
             arp_request = Popen(['arp', '-a'], stdout=PIPE)
             output = arp_request.communicate()[0].decode('utf-8', 'ignore')
@@ -201,7 +200,6 @@ class AbstractDrone(ABC):
             # Unix based system
             mac_adress_format = re.compile(r'((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2}')
             tello_builder_sign = '60:60:1f'
-            _timeout = 17
             #Get all interfaces
             ipconfig_request = Popen(['/sbin/ifconfig', '-a'], stdout=PIPE)
             output = ipconfig_request.communicate()[0].decode('utf-8', 'ignore')
@@ -210,7 +208,7 @@ class AbstractDrone(ABC):
                 if match:
                     network_adr = ipaddress.ip_interface(str(match.group()))
                     all_interfaces.add(str(network_adr.network).split('/')[0])
-        print(f'All interfaces detected are : {all_interfaces}')
+        print(f'All interfaces detected are : {list(all_interfaces)}')
 
         def test_ip(ip_list: list):
             """ Ping a range of IP / Refresh ARP """
@@ -228,14 +226,13 @@ class AbstractDrone(ABC):
                     # print(ip)
 
         print('Automatically searching for drones .....')
-        print(f'Takes approximately {_timeout}s ....')
         #Ping everything
+        thread_list = []
         for interface in all_interfaces:
             ip_net = ipaddress.ip_network(interface + '/24', strict=False)
             all_ip = list(ip_net.hosts())
             # Creating 16 threads
             ip_range = 16
-            thread_list = []
             for i in range(ip_range):
                 #Using Multi-Threading to complete a 80s task in only 15s
                 thread_list.append(Thread(target=test_ip, args=(all_ip[ip_range*i: ip_range*(i+1)],)))
@@ -338,7 +335,7 @@ class AbstractDrone(ABC):
             action_index += 1
             # Don't wait if there is no actions left
             if action_index < len(actions):
-                sleep(2)
+                sleep(3)
 
     def process_frame(self, data: bytes = None):
         """Tranform h264 Images to RGB """
