@@ -29,7 +29,7 @@ sudo apt-get install wget -y
 sudo apt-get update -y
 
 wget https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.tar.gz
-unzip boost_1_70_0.tar.gz -d /usr/local
+tar xzf boost_1_70_0.tar.gz -C /usr/local
 sudo cp /usr/local/boost_1_70_0/tools/build/example/user-config.jam $HOME/user-config.jam
 
 # Adapt to specific python you are using
