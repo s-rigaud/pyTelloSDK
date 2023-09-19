@@ -66,7 +66,7 @@ class TelloEDU(AbstractDrone):
             print(f'{index}-Socket has already been closed')
         else:
             print(f'Drone {index} - Sending message: {message}')
-            self.all_instructions.append(str(index) + '-' + message)
+            self.all_instructions.append(f'{index}-{message}')
         finally:
             self.end_connection = self.test_drone_connection()
 
@@ -76,7 +76,7 @@ class TelloEDU(AbstractDrone):
             try:
                 response, _ = self.command_socket.recvfrom(2048)
                 print(f'Received message : {response.decode("utf-8", "ignore")}')
-            except (socket.timeout, ConnectionResetError, OSError):
+            except (socket.timeout, OSError):
                 self._end_connection = True
                 print('Drone is not reachable anymore')
         # print('ack thread done')

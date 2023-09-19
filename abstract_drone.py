@@ -32,7 +32,7 @@ class NoVideoDecoderError(Exception):
 try:
     import libh264decoder
     print('You have compiled the h264 library')
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     LIB_AVAILABLE = False
 else:
     # Runtime optimisation variables
@@ -42,7 +42,7 @@ else:
 try:
     import av
     print('You have access to py-av library')
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     AV_AVAILABLE = False
 else:
     AV_AVAILABLE = True
@@ -229,7 +229,7 @@ class AbstractDrone(ABC):
         #Ping everything
         thread_list = []
         for interface in all_interfaces:
-            ip_net = ipaddress.ip_network(interface + '/24', strict=False)
+            ip_net = ipaddress.ip_network(f'{interface}/24', strict=False)
             all_ip = list(ip_net.hosts())
             # Creating 16 threads
             ip_range = 16
@@ -257,34 +257,35 @@ class AbstractDrone(ABC):
 
     def init_flight_mode(self, flight_mode: str, **options: dict):
         """Main method implementing the strategy pattern"""
-        if self.is_connected:
-            flight_mode = flight_mode.lower().strip()
-            if flight_mode == 'open pipe':
-                self.flight_mode = OpenPipeMode(self)
-
-            elif flight_mode == 'reactive':
-                self.flight_mode = ReactiveMode(self)
-
-            elif flight_mode == 'act from file':
-                if options.get('filename') is None:
-                    self.end_connection = True
-                    raise TypeError("You forgot filename argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
-                else:
-                    self.flight_mode = ActFromFileMode(self, **options)
-
-            elif flight_mode == 'act from list':
-                if options.get('actions') is None:
-                    self.end_connection = True
-                    raise TypeError("You forgot actions argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
-                self.flight_mode = ActFromActionListMode(self, **options)
-
-            elif flight_mode == 'picture mission':
-                if NO_VIDEO_DECODER:
-                    raise NoVideoDecoderError("Be sure you have access to either av library or libh264decoder")
-                self.flight_mode = PictureMission(self, **options)
-            else:
-                print('You enter an unrecognize flight mode')
+        if not self.is_connected:
+            return
+        flight_mode = flight_mode.lower().strip()
+        if flight_mode == 'act from file':
+            if options.get('filename') is None:
                 self.end_connection = True
+                raise TypeError("You forgot filename argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
+            else:
+                self.flight_mode = ActFromFileMode(self, **options)
+
+        elif flight_mode == 'act from list':
+            if options.get('actions') is None:
+                self.end_connection = True
+                raise TypeError("You forgot actions argument. \nSee : https://github.com/s-rigaud/dev-pyTelloSDK#flightmodes for help")
+            self.flight_mode = ActFromActionListMode(self, **options)
+
+        elif flight_mode == 'open pipe':
+            self.flight_mode = OpenPipeMode(self)
+
+        elif flight_mode == 'picture mission':
+            if NO_VIDEO_DECODER:
+                raise NoVideoDecoderError("Be sure you have access to either av library or libh264decoder")
+            self.flight_mode = PictureMission(self, **options)
+        elif flight_mode == 'reactive':
+            self.flight_mode = ReactiveMode(self)
+
+        else:
+            print('You enter an unrecognize flight mode')
+            self.end_connection = True
 
     def start_mission(self):
         """Launch function for the strategy (flight mode)"""
@@ -347,7 +348,7 @@ class AbstractDrone(ABC):
         else:
             if LIB_AVAILABLE:
                 frames = DECODER.decode(data)
-            elif AV_AVAILABLE:
+            else:
                 if not self.av_target_opened:
                     print('\nquarter\n')
                     container = av.open(self.video_frames, mode='r', format='h264')
