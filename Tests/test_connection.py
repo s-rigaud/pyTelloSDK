@@ -35,9 +35,9 @@ def send(message):
     """ Send bytes to tello drone using udp"""
     try:
         sock.sendto(message.encode(), tello_address)
-        print("Sending message: " + message)
+        print(f"Sending message: {message}")
     except Exception as exc:
-        print("Error sending: " + str(exc))
+        print(f"Error sending: {str(exc)}")
 
 def recv(drone_connected: bool):
     """ Receive the ack of each command sended """

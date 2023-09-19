@@ -52,7 +52,6 @@ class ReactiveMode(AbstractFlightMode):
                 self.swarm.end_connection = True
                 self.swarm.command_socket.close()
                 break
-            # Useless escape chars
             elif _input in ['[', '\x1b']:
                 continue
             elif _input == 'p':
@@ -62,7 +61,7 @@ class ReactiveMode(AbstractFlightMode):
                 for index in range(len(self.swarm)):
                     self.swarm.execute_actions([f'{index}-{command_from_key(_input)}'])
             else:
-                print('Nothing attach to this key ' + _input)
+                print(f'Nothing attach to this key {_input}')
 
         self.swarm.save_pictures(self.all_images)
 
@@ -245,7 +244,7 @@ class PictureMission(AbstractFlightMode):
                 self.swarm.execute_actions([f'0-ccw {theta}'])
                 sleep(3)
             actual_heigth += 20
-            self.swarm.execute_actions([f'0-up {20}'])
+            self.swarm.execute_actions(['0-up 20'])
             sleep(3)
 
         self.swarm.execute_actions(['0-land'])

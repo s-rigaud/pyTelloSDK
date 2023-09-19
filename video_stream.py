@@ -13,7 +13,7 @@ class VideoStream(object):
         print(len(self.queue))
         try:
             while self.queue and len(data) + len(self.queue[0]) < size:
-                data = data + self.queue[0]
+                data += self.queue[0]
                 del self.queue[0]
         except Exception as exc:
             print(exc)

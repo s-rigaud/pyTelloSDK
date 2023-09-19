@@ -30,33 +30,31 @@ def reverse_actions(actions: list):
             command = action
         values = []
         if command in ign_statements:
-            print('out : ' +command)
+            print(f'out : {command}')
             continue
         #If this is a command with parameters
         if len(action.split(' ')) > 1:
             values = action.split('-')[1].split(' ')[1:]
         #If there is a simple contrary already in the dict
-        if command in contrary_dict.keys():
-            if values:
-                action = drone_id + contrary_dict[command] + ' ' + ' '.join(values)
-            else:
-                #Useful for flips
-                action = drone_id + contrary_dict[command]
+        if command in contrary_dict:
+            action = (
+                drone_id + contrary_dict[command] + ' ' + ' '.join(values)
+                if values
+                else drone_id + contrary_dict[command]
+            )
         elif command in complex_actions:
             if command == 'go':
                 #Only reverse x and y   (put 3 to also reverse the z)
                 for index, value in enumerate(values[:3]):
                     values[index] = str(-1 * int(value))
-                action = drone_id + 'go ' + ' '.join(values)
+                action = f'{drone_id}go ' + ' '.join(values)
             if command == 'curve':
                 #Not implemented yet
                 action = 'Undefined curve'
+        elif command == 'flip':
+            action = f'{drone_id}flip {flip_contrary_dict[values[0]]}'
         else:
-            #It should be a flip
-            if command == 'flip':
-                action = drone_id + 'flip ' + flip_contrary_dict[values[0]]
-            else:
-                print('Error with command: ' + command)
+            print(f'Error with command: {command}')
 
         reversed_list.append(action)
     return reversed_list
@@ -78,12 +76,12 @@ def back_to_base(func):
 def command_from_key(key):
     """Return the command correspondign to the key typed (like a giant dictionnary)"""
     dict_int_commands = {111: 'forward 30', 113: 'left 30', 114: 'right 30', 116: 'back 30'}
-    dict_str_commands = {'a': 'sn?', ' ': 'takeoff', '+' : 'land', '8': 'up 30', '2': 'down 30', '6': 'cw 30',
-          '4': 'ccw 30', 'b': 'battery?', 'f': 'flip f', 'H': 'forward 30', 'A': 'forward 30', 'M': 'right 30',
-          'C': 'right 30', 'P': 'back 30', 'B': 'back 30', 'K': 'left 30', 'D': 'left 30'}
-
     res_action = dict_int_commands.get(key)
     if res_action is None:
+        dict_str_commands = {'a': 'sn?', ' ': 'takeoff', '+' : 'land', '8': 'up 30', '2': 'down 30', '6': 'cw 30',
+              '4': 'ccw 30', 'b': 'battery?', 'f': 'flip f', 'H': 'forward 30', 'A': 'forward 30', 'M': 'right 30',
+              'C': 'right 30', 'P': 'back 30', 'B': 'back 30', 'K': 'left 30', 'D': 'left 30'}
+
         return dict_str_commands.get(key)
     return res_action
 

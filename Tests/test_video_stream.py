@@ -13,9 +13,9 @@ sock.bind(local_address_stream)
 def send(message):
   try:
     sock.sendto(message.encode(), tello_address)
-    print("Sending message: " + message)
+    print(f"Sending message: {message}")
   except Exception as e:
-    print("Error sending: " + str(e))
+    print(f"Error sending: {str(e)}")
 
 def recv():
     while True:
